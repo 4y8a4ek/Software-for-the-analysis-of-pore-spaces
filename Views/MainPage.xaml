@@ -1,0 +1,437 @@
+<Page x:Class="DigitalCoreAnalyser.Views.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:DigitalCoreAnalyser.ViewModels"
+      xmlns:conv="using:DigitalCoreAnalyser.Converters"
+      Background="#f0f0f0">
+    <Page.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </Page.Resources>
+    <Page.DataContext>
+        <local:MainViewModel/>
+    </Page.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="10"
+                    Background="#d9d9d9"
+                    Padding="5">
+            <Button Content="Загрузить"
+                    Command="{Binding LoadSampleCommand}"
+                    Margin="5"
+                    Background="#4a90e2"
+                    Foreground="Black"/>
+            <Button Content="Анализировать проницаемость"
+                    Command="{Binding CalculatePermeabilityCommand}"
+                    Background="#4a90e2"
+                    Foreground="Black"/>
+            <Button Content="Следующий слой"
+                    Command="{Binding PreviousSliceCommand}"
+                    Margin="5"
+                    Background="#4a90e2"
+                    Foreground="Black"/>
+            <Button Content="Предыдущий слой"
+                    Command="{Binding NextSliceCommand}"
+                    Margin="5"
+                    Background="#4a90e2"
+                    Foreground="Black"/>
+            <Slider Minimum="0"
+                    Maximum="{Binding MaxSliceIndex}"
+                    Value="{Binding SliceIndex, Mode=TwoWay}"
+                    Width="200"
+                    Margin="5"
+                    ValueChanged="Slider_ValueChanged"/>
+            <TextBlock Text="{Binding SliceIndex}"
+                       VerticalAlignment="Center"
+                       Margin="5"
+                       Foreground="Black"/>
+            <Button Content="2D / 3D"
+                    Command="{Binding ToggleViewModeCommand}"
+                    Margin="5"
+                    Background="#f39c12"
+                    Foreground="Black"/>
+            <Button Content="Статистический анализ"
+                    Command="{Binding  StatisticsAnalysisCommand}"
+                    Margin="5"
+                    Background="#e74c3c"
+                    Foreground="Black"/>
+
+        </StackPanel>
+
+        <!-- Main Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Info Panel -->
+            <StackPanel Grid.Column="0"
+                        Margin="10">
+
+                <!-- Информация об изображении -->
+                <Border Background="White"
+                        Padding="10"
+                        CornerRadius="8"
+                        BorderBrush="#c0c0c0"
+                        BorderThickness="1"
+                        Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="Информация об изображении"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,8"
+                                   Foreground="Black"/>
+                        <TextBlock>
+                <Run Text="Имя: "
+                            Foreground="Black"/>
+                <Run Text="{Binding SampleName}"
+                            Foreground="Black"/>
+                        </TextBlock>
+                        <TextBlock>
+                <Run Text="Размер изображения: "
+                            Foreground="Black"/>
+                <Run Text="{Binding SampleSize}"
+                            Foreground="Black"/>
+                        </TextBlock>
+                        <TextBlock>
+                <Run Text="Размер Вокселей: "
+                            Foreground="Black"/>
+                <Run Text="{Binding SampleVoxelSize}"
+                            Foreground="Black"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Результаты проницаемости (новый блок) -->
+                <Border Background="White"
+                        Padding="10"
+                        CornerRadius="8"
+                        BorderBrush="#c0c0c0"
+                        BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="Характеристики изображения"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,8"
+                                   Foreground="Black"/>
+                        <TextBlock>
+                <Run Text="Пористость: "
+                            Foreground="Black"/>
+                <Run Text="{Binding SamplePorosity}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+                        <!-- Проницаемость -->
+                        <TextBlock Margin="0,3,0,0">
+                <Run Text="Проницаемость: "
+                            Foreground="Black"/>
+                <Run Text="{Binding PermeabilityResult}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                        <!-- Фактор формации -->
+                        <TextBlock Margin="0,5,0,0">
+                <Run Text="Фактор формации: "
+                            Foreground="Black"/>
+                <Run Text="{Binding FormationFactorResult}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                        <!-- Извилистость -->
+                        <TextBlock Margin="0,5,0,0">
+                <Run Text="Извилистость: "
+                            Foreground="Black"/>
+                <Run Text="{Binding TortuosityResult}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                        <!-- Разделитель (опционально) -->
+                        <Border Height="1"
+                                Background="#c0c0c0"
+                                Margin="0,8,0,5"
+                                Visibility="{Binding HasResults}"/>
+
+                        <!-- Время расчета (опционально) -->
+                        <TextBlock Margin="0,5,0,0">
+                <Run Text="Эффективная пористость: "
+                            Foreground="Black"/>
+                <Run Text="{Binding EffectivePorosity}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,5,0,0">
+                <Run Text="Ср. размер пор: "
+                            Foreground="Black"/>
+                <Run Text="{Binding PoreSize}"
+                            FontWeight="SemiBold"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                    </StackPanel>
+                </Border>
+                <Border Background="White"
+                        Padding="10"
+                        CornerRadius="8"
+                        BorderBrush="#c0c0c0"
+                        BorderThickness="1"
+                        Margin="0,10,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Информация о подвыборке"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,8"
+                                   Foreground="Black"/>
+
+                        <!-- Простые привязки без форматирования -->
+                        <TextBlock>
+            <Run Text="Имя: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Name}"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="X: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.X}"
+                            Foreground="Black"/>
+            <Run Text=" Y: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Y}"
+                            Foreground="Black"/>
+            <Run Text=" Z: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Z}"
+                            Foreground="Black"/>
+                        </TextBlock>
+
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="Размер: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Size}"
+                            Foreground="Black"/>
+                        <Run Text=" вокселей"
+                             Foreground="Black"/>
+                        </TextBlock>
+                        <Border Height="1"
+                                Background="#c0c0c0"
+                                Margin="0,8,0,5"/>
+
+                        <!-- Результаты анализа -->
+                        <TextBlock Text="Результаты анализа:"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+
+                        <!-- Пористость -->
+                        <TextBlock Margin="0,3,0,0">
+            <Run Text="Пористость: "
+                            Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Porosity}"
+                            Foreground="Black"
+                            FontWeight="SemiBold"/>
+            <Run Text="%"
+                            Foreground="Black"/>
+                        </TextBlock>
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="Проницаемость: "
+                                    Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Permeability}"
+                                    Foreground="Black"
+                                    FontWeight="SemiBold"/>
+            <Run Text=" Дарси"
+                                    Foreground="Black"/>
+                        </TextBlock>
+                        <!-- Фактор формации -->
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="Фактор формации: "
+                                    Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.FormationFactor}"
+                                    Foreground="Black"
+                                    FontWeight="SemiBold"/>
+                        </TextBlock>
+
+                        <!-- Извилистость -->
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="Извилистость: "
+                                    Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.Tortuosity}"
+                                    Foreground="Black"
+                                    FontWeight="SemiBold"/>
+                        </TextBlock>
+
+                        <!-- Размер пор -->
+                        <TextBlock Margin="0,5,0,0">
+            <Run Text="Ср. размер пор: "
+                                    Foreground="Black"/>
+            <Run Text="{Binding SelectedSubSample.PoreSize}"
+                                    Foreground="Black"
+                                    FontWeight="SemiBold"/>
+            <Run Text=" мкм"
+                                    Foreground="Black"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Image -->
+            <Grid Grid.Column="1"
+                  Margin="10">
+
+                <!-- 2D -->
+                <Border BorderBrush="#c0c0c0"
+                        BorderThickness="1"
+                        Background="White"
+                        CornerRadius="8"
+                        Padding="5"
+                        Visibility="{Binding Is3DView, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=invert}">
+
+                    <Image Source="{Binding CurrentSlice}"
+                           Stretch="Uniform"/>
+                </Border>
+
+                <!-- 3D -->
+                <Border BorderBrush="#c0c0c0"
+                        BorderThickness="1"
+                        Background="White"
+                        CornerRadius="8"
+                        Padding="5"
+                        Visibility="{Binding Is3DView, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Image x:Name="ThreeDImage"
+                            Stretch="Uniform"/>
+                </Border>
+            </Grid>
+
+            <!-- SubSamples -->
+            <!-- SubSamples -->
+            <Grid Grid.Column="2"
+                  Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="Создание подвыборки"
+                           FontWeight="Bold"
+                           Margin="5"
+                           Foreground="Black"/>
+
+                <!-- Поля для ввода параметров подвыборки -->
+                <Border Grid.Row="1"
+                        Background="White"
+                        Padding="10"
+                        CornerRadius="8"
+                        BorderBrush="#c0c0c0"
+                        BorderThickness="1"
+                        Margin="5">
+                    <StackPanel>
+                        <TextBlock Text="Имя:"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+                        <TextBox x:Name="NewSubSampleName"
+                                 PlaceholderText="Имя подвыборки"
+                                 Margin="0,0,0,10"
+                                 Foreground="Black"/>
+
+                        <TextBlock Text="Координата X:"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+                        <TextBox x:Name="NewSubSampleX"
+                                 PlaceholderText="0"
+                                 Text="50"
+                                 Margin="0,0,0,10"
+                                 Foreground="Black"/>
+
+                        <TextBlock Text="Координата Y:"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+                        <TextBox x:Name="NewSubSampleY"
+                                 PlaceholderText="0"
+                                 Text="50"
+                                 Margin="0,0,0,10"
+                                 Foreground="Black"/>
+
+                        <TextBlock Text="Координата Z:"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+                        <TextBox x:Name="NewSubSampleZ"
+                                 PlaceholderText="0"
+                                 Text="50"
+                                 Margin="0,0,0,10"
+                                 Foreground="Black"/>
+
+                        <TextBlock Text="Размер:"
+                                   Margin="0,0,0,5"
+                                   Foreground="Black"/>
+                        <TextBox x:Name="NewSubSampleSize"
+                                 PlaceholderText="100"
+                                 Text="100"
+                                 Margin="0,0,0,10"
+                                 Foreground="Black"/>
+
+                        <Button Content="Добавить подвыборку"
+                                Command="{Binding CreateSubSampleFromFieldsCommand}"
+                                Background="#50c878"
+                                Foreground="Black"
+                                Padding="10,5"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="2"
+                           Text="Существующие подвыборки"
+                           FontWeight="Bold"
+                           Margin="5,10,5,5"
+                           Foreground="Black"/>
+
+                <ListView Grid.Row="3"
+                          ItemsSource="{Binding SubSamples}"
+                          SelectedItem="{Binding SelectedSubSample, Mode=TwoWay}"
+                          Margin="5"
+                          Background="White"
+                          BorderBrush="#c0c0c0"
+                          BorderThickness="1"
+                          Foreground="Black">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical"
+                                        Margin="5">
+                                <TextBlock Text="{Binding Name}"
+                                           FontWeight="SemiBold"
+                                           Foreground="Black"/>
+                                <TextBlock FontSize="11"
+                                           Foreground="Gray">
+                    <Run Text="Координаты: "/>
+                    <Run Text="X ="/><Run Text="{Binding X}"/>
+                    <Run Text=" Y ="/><Run Text="{Binding Y}"/>
+                    <Run Text=" Z ="/><Run Text="{Binding Z}"/>
+                    <Run Text=" Размер ="/><Run Text="{Binding Size}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <Button Grid.Row="4"
+                        Content="Анализировать выбранную"
+                        Command="{Binding AnalyzeSubSampleCommand}"
+                        Margin="5"
+                        Padding="10,5"
+                        Background="#4a90e2"
+                        Foreground="Black"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>
